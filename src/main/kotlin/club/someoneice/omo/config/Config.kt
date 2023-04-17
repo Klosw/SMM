@@ -10,9 +10,9 @@ class Config() {
     val common: ForgeConfigSpec = init()
 
     companion object {
-        var rtp: BooleanValue? = null
-        var PosX: IntValue? = null
-        var PosZ: IntValue? = null
+        lateinit var rtp: BooleanValue
+        lateinit var PosX: IntValue
+        lateinit var PosZ: IntValue
     }
 
     fun init(): ForgeConfigSpec {

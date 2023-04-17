@@ -1,9 +1,10 @@
 package club.someoneice.omo.common
 
-import net.minecraft.world.server.ServerWorld
+import net.minecraft.server.level.ServerLevel
+
 
 data class PlayerPath(
-    val level: ServerWorld,
+    val level: ServerLevel,
     val x: Double,
     val y: Double,
     val z: Double,

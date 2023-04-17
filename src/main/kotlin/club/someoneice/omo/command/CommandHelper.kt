@@ -1,162 +1,182 @@
 package club.someoneice.omo.command
 
-import club.someoneice.omo.common.Player
+import club.someoneice.omo.command.Command.COM_BACK
+import club.someoneice.omo.command.Command.COM_PLAYER
+import club.someoneice.omo.command.Command.COM_RTP
+import club.someoneice.omo.command.Command.COM_TPA
+import club.someoneice.omo.command.Command.COM_TPA_HERE
+import club.someoneice.omo.command.Command.COM_TP_ACCEPT
+import club.someoneice.omo.command.Command.COM_TP_DENY
+import club.someoneice.omo.common.Back
+import club.someoneice.omo.common.PlayerPath
+import club.someoneice.omo.common.Tp
 import club.someoneice.omo.config.Config
 import com.mojang.brigadier.CommandDispatcher
-import net.minecraft.block.Blocks
-import net.minecraft.command.CommandSource
-import net.minecraft.command.Commands
-import net.minecraft.command.Commands.argument
-import net.minecraft.command.arguments.EntityArgument
-import net.minecraft.entity.player.PlayerEntity
-import net.minecraft.entity.player.ServerPlayerEntity
-import net.minecraft.util.math.BlockPos
-import net.minecraft.util.text.ITextComponent
-import net.minecraft.util.text.StringTextComponent
-import net.minecraft.world.World
-import net.minecraft.world.server.ServerWorld
+import net.minecraft.commands.CommandSourceStack
+import net.minecraft.commands.Commands
+import net.minecraft.commands.Commands.argument
+import net.minecraft.commands.arguments.EntityArgument
+import net.minecraft.core.BlockPos
+import net.minecraft.network.chat.Component
+import net.minecraft.network.chat.MutableComponent
+import net.minecraft.network.chat.contents.LiteralContents
+import net.minecraft.server.level.ServerLevel
+import net.minecraft.server.level.ServerPlayer
+import net.minecraft.world.level.block.Blocks
 import net.minecraftforge.fml.common.Mod.EventBusSubscriber
 import java.util.*
 
+object Command {
+    const val COM_PLAYER = "player"
+    const val COM_TPA = "tpa"
+    const val COM_TPA_HERE = "tpahere"
+    const val COM_TP_ACCEPT = "tpaccept"
+    const val COM_TP_DENY = "tpdeny"
+    const val COM_BACK = "back"
+    const val COM_RTP = "rtp"
+}
+
 @EventBusSubscriber
 class CommandHelper {
-    fun TPA(event: CommandDispatcher<CommandSource>) {
-        val tpa = event.register(
-            Commands.literal("tpa")
-                .then(argument("player", EntityArgument.players())
-                    .executes { tpa ->
-                        val playerName: ServerPlayerEntity = EntityArgument.getPlayer(tpa, "player")
-                        val playerAsk: ServerPlayerEntity = tpa.source.playerOrException
 
-                        if (Player.getKey(Player.playerTeleportList, playerName) != null) {
-                            Player.playerTeleportList.remove(Player.getKey(Player.playerTeleportList, playerName))
-                        }
+    /**
+     * tp到 别人
+     * @param [event] 事件
+     */
+    fun tpa(event: CommandDispatcher<CommandSourceStack>) {
+        event.register(
+            Commands.literal(COM_TPA).then(argument(COM_PLAYER, EntityArgument.players()).executes { cmd ->
+                //需要传送到的人
+                val playerName = EntityArgument.getPlayer(cmd, COM_PLAYER)
+                //发起传送的人
+                val playerAsk = cmd.source.playerOrException
+                Tp.tpa(playerAsk, playerName)
+                return@executes 0
+            })
 
-                        Player.playerTeleportList[playerAsk] = playerName
-                        Player.playerGoToList[playerAsk] = false
-
-                        tpa.source.sendSuccess(StringTextComponent("已经向 ${playerName.scoreboardName}发送了传送请求！") , true)
-                        (playerName as PlayerEntity).sendMessage(StringTextComponent("${playerAsk.scoreboardName} 想要传送到你这里！"), (playerName as PlayerEntity).uuid)
-
-                        0
-                    }
-            )
         )
     }
 
-    fun TPAHERE(event: CommandDispatcher<CommandSource>) {
-        val tpa = event.register(
-            Commands.literal("tpahere")
-                .then(argument("player", EntityArgument.players())
-                    .executes { tpa ->
-                        val playerName: ServerPlayerEntity = EntityArgument.getPlayer(tpa, "player")
-                        val playerAsk: ServerPlayerEntity = tpa.source.playerOrException
-
-                        if (Player.getKey(Player.playerTeleportList, playerName) != null) {
-                            Player.playerTeleportList.remove(Player.getKey(Player.playerTeleportList, playerName))
-                        }
-
-                        Player.playerTeleportList[playerAsk] = playerName
-                        Player.playerGoToList[playerAsk] = true
-
-                        tpa.source.sendSuccess(StringTextComponent("已经向 ${playerName.scoreboardName} 发送了传送请求！"), false)
-                        (playerName as PlayerEntity).sendMessage(StringTextComponent("${playerAsk.scoreboardName} 希望传送你到他那边去！"), (playerName as PlayerEntity).uuid)
-
-                        0
-                    }
-                )
+    /**
+     * tp到我的位置
+     * @param [event] 事件
+     */
+    fun tpaHere(event: CommandDispatcher<CommandSourceStack>) {
+        event.register(
+            Commands.literal(COM_TPA_HERE).then(argument(COM_PLAYER, EntityArgument.players()).executes { cmd ->
+                val playerName = EntityArgument.getPlayer(cmd, COM_PLAYER)
+                val playerAsk = cmd.source.playerOrException
+                Tp.tpaHere(playerAsk, playerName)
+                return@executes 0
+            })
         )
     }
 
-    fun TPACCEPT(event: CommandDispatcher<CommandSource>) {
-        val tpa = event.register(
-            Commands.literal("tpaccept")
-                .executes { tpa ->
-                    val playerAsk: ServerPlayerEntity = tpa.source.playerOrException
-
-                    if (Player.getKey(Player.playerTeleportList, playerAsk) == null) {
-                        (playerAsk as PlayerEntity).sendMessage(StringTextComponent("你没有收到任何请求！"), (playerAsk as PlayerEntity).uuid)
-                    } else {
-                        val player: PlayerEntity = Player.getKey(Player.playerTeleportList, playerAsk) as PlayerEntity
-
-                        when(Player.playerGoToList[Player.getKey(Player.playerTeleportList, playerAsk)]) {
-                            true ->
-                                playerAsk.teleportTo(player.level as ServerWorld, player.x, player.y, player.z, player.xRot, player.yRot)
-                            false ->
-                                (player as ServerPlayerEntity).teleportTo((playerAsk as PlayerEntity).level as ServerWorld, playerAsk.x, playerAsk.y, playerAsk.z, playerAsk.xRot, playerAsk.yRot)
-                            else -> tpa.source.sendFailure(StringTextComponent("参数或未知问题。"))
-                        }
-
-                        Player.playerTeleportList.remove(Player.getKey(Player.playerTeleportList, playerAsk))
-                    }
-
-                    0
-                }
-        )
+    /**
+     * tp接受
+     * @param [event] 事件
+     */
+    fun tpAccept(event: CommandDispatcher<CommandSourceStack>) {
+        event.register(Commands.literal(COM_TP_ACCEPT).executes { cmd ->
+            val playerAsk = cmd.source.playerOrException
+            Tp.tpAccept(playerAsk)
+            return@executes 0
+        })
     }
 
-    fun TPDENY(event: CommandDispatcher<CommandSource>) {
-        val tpa = event.register(
-            Commands.literal("tpdeny")
-                .executes { tpa ->
-                    val playerAsk: ServerPlayerEntity = tpa.source.playerOrException
-
-                    if (Player.getKey(Player.playerTeleportList, playerAsk) == null) {
-                        tpa.source.sendFailure(StringTextComponent("你没有收到任何请求！"))
-                    } else {
-                        Player.playerTeleportList.remove(Player.getKey(Player.playerTeleportList, playerAsk))
-                        tpa.source.sendSuccess(StringTextComponent("你拒绝了 ${Player.getKey(Player.playerTeleportList, playerAsk)?.scoreboardName} 的传送请求！"), false)
-                        (Player.getKey(Player.playerTeleportList, playerAsk) as ServerPlayerEntity).sendMessage(StringTextComponent("${playerAsk.scoreboardName} 拒绝了你的请求！"), (Player.getKey(Player.playerTeleportList, playerAsk) as ServerPlayerEntity).uuid)
-
-                    }
-
-                    0
-                }
-        )
+    /**
+     * tp拒绝
+     * @param [event] 事件
+     */
+    fun tpDeny(event: CommandDispatcher<CommandSourceStack>) {
+        event.register(Commands.literal(COM_TP_DENY).executes { cmd ->
+            val playerAsk: ServerPlayer = cmd.source.playerOrException
+            Tp.tpAccept(playerAsk, false)
+            return@executes 0
+        })
     }
 
-    fun BACK(event: CommandDispatcher<CommandSource>) {
-        val back = event.register(
-            Commands.literal("back")
-                .executes { back ->
-                    val playerAsk: ServerPlayerEntity = back.source.playerOrException
-
-                    if (Player.playerDeath.containsKey(playerAsk)) {
-                        playerAsk.teleportTo(Player.playerDeath[playerAsk]?.level as ServerWorld, Player.playerDeath[playerAsk]?.x as Double, Player.playerDeath[playerAsk]?.y as Double, Player.playerDeath[playerAsk]?.z as Double, Player.playerDeath[playerAsk]?.RotX as Float, Player.playerDeath[playerAsk]?.RotY as Float)
-                        back.source.sendSuccess(StringTextComponent("已经回到上一次死亡地点！"), true)
-                    } else {
-                        back.source.sendFailure(StringTextComponent("你从未死亡."))
-                    }
-
-                    0
-                }
-        )
+    /**
+     * 返回上次死亡地点
+     * @param [event] 事件
+     */
+    fun back(event: CommandDispatcher<CommandSourceStack>) {
+        event.register(Commands.literal(COM_BACK).executes { back ->
+            Back.tpToDeathPosition(back.source.playerOrException)
+            return@executes 0
+        })
     }
 
-    fun RTP(event: CommandDispatcher<CommandSource>) {
-        val rtp = event.register(
-            Commands.literal("rtp")
-                .executes { rtp ->
-                    val player: ServerPlayerEntity = rtp.source.playerOrException
-                    val world: World = player.level
-                    if (Config.rtp!!.get()) {
-                        val random = Random()
-                        var x: Int = random.nextInt(Config.PosX!!.get())
-                        var z: Int = random.nextInt(Config.PosZ!!.get())
-                        if (!random.nextBoolean()) x = 0 - x
-                        if (!random.nextBoolean()) z = 0 - z
+    /**
+     * 随机传送
+     * @param [event] 事件
+     */
+    fun rtp(event: CommandDispatcher<CommandSourceStack>) {
+        event.register(Commands.literal(COM_RTP).executes { rtp ->
+            val player = rtp.source.playerOrException
+            val world = player.level
+            if (Config.rtp.get()) {
+                Back.addDeathPosition(player)
+                val random = Random()
+                var x = random.nextInt(Config.PosX.get())
+                var z = random.nextInt(Config.PosZ.get())
+                if (random.nextBoolean()) x = -x
+                if (random.nextBoolean()) z = -z
+                //以当前位置进行加减
+                x += player.x.toInt()
+                z += player.z.toInt()
+                var y = 255
+                player.sendMessage("正在查找安全位置!", true)
+                while (world.getBlockState(BlockPos(x, y - 2, z)) == Blocks.AIR.defaultBlockState()) y -= 1
+                player.connection.teleport(x.toDouble(), y.toDouble(), z.toDouble(), player.xRot, player.yRot)
+            } else {
+                rtp.source.sendFailure(StringTextComponent("Server Close RTP."))
+            }
 
-                        var y: Int = random.nextInt(80) + 40
-                        while (world.getBlockState(BlockPos(x, y, z)) != Blocks.AIR.defaultBlockState()) y += 2
-                        while (world.getBlockState(BlockPos(x, y - 2, z)) == Blocks.AIR.defaultBlockState()) y -= 1
-
-                        player.connection.teleport(x.toDouble(), y.toDouble(), z.toDouble(), player.xRot, player.yRot)
-                    } else {
-                        rtp.source.sendFailure(StringTextComponent("Server Close RTP.") as ITextComponent)
-                    }
-
-                    0
-                }
-        )
+            return@executes 0
+        })
     }
+}
+
+/**
+ * 字符串文本组件
+ * @param [s] s
+ * @return [MutableComponent]
+ */
+fun StringTextComponent(s: String): MutableComponent {
+    return MutableComponent.create(LiteralContents(s))
+}
+
+/**
+ * 发送消息
+ * @param [message] 消息
+ */
+fun ServerPlayer.sendMessage(message: String, msgToast: Boolean = false) {
+    //这个false是在聊天栏显示 true 在屏幕前
+    sendSystemMessage(MutableComponent.create(LiteralContents(message)), msgToast)
+}
+
+fun ServerPlayer.teleportToPath(path: PlayerPath) {
+    path.let {
+        this.teleportTo(it.level, it.x, it.y, it.z, it.RotX, it.RotY)
+    }
+}
+
+fun ServerPlayer.teleportToPlayer(to: ServerPlayer) {
+    teleportTo(to.level as ServerLevel, to.x, to.y, to.z, to.xRot, to.yRot)
+}
+
+
+fun ServerPlayer.sendMessage(component: Component, uuid: UUID) {
+    //这个false是在聊天栏显示
+    sendSystemMessage(component, false)
+}
+
+/**
+ * 发送消息
+ * @param [message] 消息
+ */
+fun CommandSourceStack.sendMessage(message: String) {
+    //这个true是在控制台打印
+    sendSuccess(MutableComponent.create(LiteralContents(message)), true)
 }

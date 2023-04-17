@@ -1,31 +1,31 @@
 package club.someoneice.omo.command
 
-import net.minecraftforge.fml.common.Mod.EventBusSubscriber
 import com.mojang.brigadier.CommandDispatcher
-import net.minecraft.command.CommandSource
-import net.minecraftforge.eventbus.api.SubscribeEvent
-import net.minecraftforge.fml.event.server.FMLServerAboutToStartEvent
+import net.minecraft.commands.CommandSourceStack
 import net.minecraftforge.event.RegisterCommandsEvent
-import net.minecraftforge.fml.event.server.FMLServerStoppedEvent
+import net.minecraftforge.event.server.ServerAboutToStartEvent
+import net.minecraftforge.event.server.ServerStoppedEvent
+import net.minecraftforge.eventbus.api.SubscribeEvent
+import net.minecraftforge.fml.common.Mod.EventBusSubscriber
 
 /**
-* Register The Command.
-*/
+ * Register The Command.
+ */
 @EventBusSubscriber(modid = "omo", bus = EventBusSubscriber.Bus.FORGE)
 object CommandRegistry {
     var init = false
-    private fun register(event: CommandDispatcher<CommandSource>) {
+    private fun register(event: CommandDispatcher<CommandSourceStack>) {
         val cmd = CommandHelper()
-        cmd.TPA(event)
-        cmd.TPACCEPT(event)
-        cmd.TPDENY(event)
-        cmd.TPAHERE(event)
-        cmd.BACK(event)
-        cmd.RTP(event)
+        cmd.tpa(event)
+        cmd.tpAccept(event)
+        cmd.tpDeny(event)
+        cmd.tpaHere(event)
+        cmd.back(event)
+        cmd.rtp(event)
     }
 
     @SubscribeEvent
-    fun register(event: FMLServerAboutToStartEvent) {
+    fun register(event: ServerAboutToStartEvent) {
         if (!init) {
             register(event.server.commands.dispatcher)
             init = true
@@ -38,7 +38,7 @@ object CommandRegistry {
     }
 
     @SubscribeEvent
-    fun onServerStopped(event: FMLServerStoppedEvent?) {
+    fun onServerStopped(event: ServerStoppedEvent?) {
         init = false
     }
 }

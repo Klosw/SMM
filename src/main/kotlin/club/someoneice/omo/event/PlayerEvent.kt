@@ -1,31 +1,33 @@
 package club.someoneice.omo.event
 
-import club.someoneice.omo.common.Player
+import club.someoneice.omo.common.Back
+import club.someoneice.omo.common.Player.playerList
 import club.someoneice.omo.common.PlayerPath
-import net.minecraft.entity.player.PlayerEntity
-import net.minecraftforge.fml.common.Mod.EventBusSubscriber
-import net.minecraftforge.eventbus.api.SubscribeEvent
+import net.minecraft.server.level.ServerLevel
+import net.minecraft.server.level.ServerPlayer
 import net.minecraftforge.event.entity.living.LivingDeathEvent
-import net.minecraft.entity.player.ServerPlayerEntity
-import net.minecraft.world.server.ServerWorld
 import net.minecraftforge.event.entity.player.PlayerEvent.PlayerLoggedInEvent
-import org.apache.logging.log4j.core.jmx.Server
+import net.minecraftforge.event.entity.player.PlayerEvent.PlayerLoggedOutEvent
+import net.minecraftforge.eventbus.api.SubscribeEvent
+import net.minecraftforge.fml.common.Mod.EventBusSubscriber
 
 @EventBusSubscriber
 object PlayerEvent {
     @SubscribeEvent
-    fun onPlayerLoginIn(event: PlayerLoggedInEvent) {
-        Player.playerList[event.player.scoreboardName] = event.player as ServerPlayerEntity
+    fun onPlayerLoggedIn(event: PlayerLoggedInEvent) {
+        playerList[event.entity.scoreboardName] = event.entity as ServerPlayer
+    }
+
+    @SubscribeEvent
+    fun onPlayerLoggedOut(event: PlayerLoggedOutEvent) {
+        playerList.remove(event.entity.scoreboardName)
     }
 
     @SubscribeEvent
     fun onPlayerDeath(event: LivingDeathEvent) {
-        val player = event.entity.scoreboardName
-
-        if (Player.playerList.containsKey(player)) {
-            val isPlayer = Player.playerList[player] as ServerPlayerEntity
-            val playerPathList = PlayerPath(isPlayer.level as ServerWorld, isPlayer.x, isPlayer.y, isPlayer.z, isPlayer.xRot, isPlayer.yRot)
-            Player.playerDeath[isPlayer] = playerPathList
+        val player = event.entity
+        if (player is ServerPlayer) {
+            player.apply { Back.addDeathPosition(this, PlayerPath(level as ServerLevel, x, y, z, xRot, yRot)) }
         }
     }
 }
