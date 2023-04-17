@@ -7,37 +7,33 @@
 #modLoader="javafml" #mandatory#
 # A version range to match for said mod loader - for regular FML @Mod it will be the forge version
 #loaderVersion="[44,)" #mandatory This is typically bumped every Minecraft version by Forge. See our download page for lists of versions.
-modLoader="kotlinforforge"
+modLoader = "kotlinforforge"
 # Change this if you require a certain version of KotlinForForge
-loaderVersion="[4,)"
+loaderVersion = "[4,)"
 
-license="All rights reserved"
+license = "All rights reserved"
 # A list of mods - how many allowed here is determined by the individual mod loader
 [[mods]] #mandatory
 # The modid of the mod
-modId="omo" #mandatory
-version="${file.jarVersion}" #mandatory
-displayName="omo mod" #mandatory
-logoFile="examplemod.png" #optional
-credits="Thanks for this example mod goes to Java" #optional
-authors="Love, Cheese and small house plants" #optional
+modId = "omo" #mandatory
+version = "${file.jarVersion}" #mandatory
+displayName = "omo mod" #mandatory
+logoFile = "omo.png" #optional
+credits = "AmarokIce,Klosw" #optional
+authors = "AmarokIce" #optional
 
-description='''
-This is a long form description of the mod. You can write whatever you want here
-
-Have some lorem ipsum.
-
-Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed mollis lacinia magna. Orci varius natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Sed sagittis luctus odio eu tempus. Interdum et malesuada fames ac ante ipsum primis in faucibus. Pellentesque volutpat ligula eget lacus auctor sagittis. In hac habitasse platea dictumst. Nunc gravida elit vitae sem vehicula efficitur. Donec mattis ipsum et arcu lobortis, eleifend sagittis sem rutrum. Cras pharetra quam eget posuere fermentum. Sed id tincidunt justo. Lorem ipsum dolor sit amet, consectetur adipiscing elit.
-'''
+description = '''
+ A simple mod that offers [tpa, tphere, tpaccept, tpadeny ,back,trp]
+ '''
 [[dependencies.examplemod]] #optional
-    modId="forge" #mandatory
-    mandatory=true #mandatory
-    versionRange="[44,)" #mandatory
-    ordering="NONE"
-    side="BOTH"
+modId = "forge" #mandatory
+mandatory = true #mandatory
+versionRange = "[44,)" #mandatory
+ordering = "NONE"
+side = "BOTH"
 [[dependencies.examplemod]]
-    modId="minecraft"
-    mandatory=true
-    versionRange="[1.19.3,1.20)"
-    ordering="NONE"
-    side="BOTH"
+modId = "minecraft"
+mandatory = true
+versionRange = "[1.19.3,1.20)"
+ordering = "NONE"
+side = "BOTH"
