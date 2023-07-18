@@ -15,9 +15,9 @@ import org.apache.logging.log4j.Logger
 import thedarkcolour.kotlinforforge.forge.FORGE_BUS
 import thedarkcolour.kotlinforforge.forge.MOD_BUS
 
-@Mod(OMOMain.ID)
-object OMOMain {
-    const val ID: String = "omo"
+@Mod(SMMMain.ID)
+object SMMMain {
+    const val ID: String = "smm"
 
     val LOGGER: Logger = LogManager.getLogger()
 
