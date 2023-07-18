@@ -1,8 +1,8 @@
-package club.someoneice.omo.common
+package club.someoneice.smm.common
 
-import club.someoneice.omo.command.sendMessage
-import club.someoneice.omo.command.teleportToPath
-import club.someoneice.omo.command.teleportToPlayer
+import club.someoneice.smm.command.sendMessage
+import club.someoneice.smm.command.teleportToPath
+import club.someoneice.smm.command.teleportToPlayer
 import net.minecraft.server.level.ServerLevel
 import net.minecraft.server.level.ServerPlayer
 import java.util.*

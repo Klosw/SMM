@@ -1,8 +1,8 @@
-package club.someoneice.omo.event
+package club.someoneice.smm.event
 
-import club.someoneice.omo.common.Back
-import club.someoneice.omo.common.Player.playerList
-import club.someoneice.omo.common.PlayerPath
+import club.someoneice.smm.common.Back
+import club.someoneice.smm.common.Player.playerList
+import club.someoneice.smm.common.PlayerPath
 import net.minecraft.server.level.ServerLevel
 import net.minecraft.server.level.ServerPlayer
 import net.minecraftforge.event.entity.living.LivingDeathEvent

@@ -1,4 +1,4 @@
-package club.someoneice.omo.command
+package club.someoneice.smm.command
 
 import com.mojang.brigadier.CommandDispatcher
 import net.minecraft.commands.CommandSourceStack

@@ -1,4 +1,4 @@
-package club.someoneice.omo.config
+package club.someoneice.smm.config
 
 import net.minecraftforge.common.ForgeConfigSpec
 import net.minecraftforge.common.ForgeConfigSpec.BooleanValue

@@ -1,8 +1,8 @@
-package club.someoneice.omo
+package club.someoneice.smm
 
-import club.someoneice.omo.command.CommandRegistry
-import club.someoneice.omo.config.Config
-import club.someoneice.omo.event.PlayerEvent
+import club.someoneice.smm.command.CommandRegistry
+import club.someoneice.smm.config.Config
+import club.someoneice.smm.event.PlayerEvent
 import net.minecraftforge.common.MinecraftForge
 import net.minecraftforge.event.server.ServerAboutToStartEvent
 import net.minecraftforge.fml.ModLoadingContext

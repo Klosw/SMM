@@ -1,4 +1,4 @@
-package club.someoneice.omo.common
+package club.someoneice.smm.common
 
 import net.minecraft.server.level.ServerLevel
 
