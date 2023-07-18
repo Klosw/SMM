@@ -15,23 +15,23 @@ license = "All rights reserved"
 # A list of mods - how many allowed here is determined by the individual mod loader
 [[mods]] #mandatory
 # The modid of the mod
-modId = "omo" #mandatory
+modId = "smm" #mandatory
 version = "${file.jarVersion}" #mandatory
-displayName = "omo mod" #mandatory
-logoFile = "omo.png" #optional
-credits = "AmarokIce,Klosw" #optional
-authors = "AmarokIce" #optional
+displayName = "smm mod" #mandatory
+logoFile = "smm.png" #optional
+credits = "Klosw,AmarokIce" #optional
+authors = "Klosw" #optional
 
 description = '''
- A simple mod that offers [tpa, tphere, tpaccept, tpadeny ,back,trp]
+ A simple mod that offers [tpa, tphere, tpaccept, tpadeny ,back,trp,home] by AmarokIce.OMO
  '''
-[[dependencies.examplemod]] #optional
+[[dependencies.smm]] #optional
 modId = "forge" #mandatory
 mandatory = true #mandatory
 versionRange = "[44,)" #mandatory
 ordering = "NONE"
 side = "BOTH"
-[[dependencies.examplemod]]
+[[dependencies.smm]]
 modId = "minecraft"
 mandatory = true
 versionRange = "[1.19.3,1.20)"
